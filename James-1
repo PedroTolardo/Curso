@@ -1,0 +1,101 @@
+import speech_recognition as sr
+import json
+import spotipy
+import webbrowser
+import pyautogui as pa
+import pyperclip as pp
+import time
+#import playsound
+
+
+class VoiceAssistant:
+    
+    def __init__(self):
+        self.keyword_hera = ["James", "james", "Jame", "jame", "Games", "games", "game", "Game"]
+        #self.keyword_question = ["what's", "what", "when", "how", "who", "how's"]
+        self.keyword_music = ["toque uma música"]
+        self.keyword_fruta = ["eu quero uma salada de fruta"]
+        self.r = sr.Recognizer()
+        self.language = "pt-BR"
+        self.username = 'pedro'
+        self.clientID = '9843855025ed4f77a4b838d5e963350e'
+        self.clientSecret = '6b5987c56f2a4c668e8caa0179720198'
+        self.redirectURI = 'http://google.com/' 
+
+    def record_audio(self, phrase_time_limit=2):
+        with sr.Microphone() as source:
+            print("Listening...")
+            audio = self.r.adjust_for_ambient_noise(source, duration=1)
+            audio = self.r.listen(source, phrase_time_limit=phrase_time_limit)
+        return audio
+
+    def transcribe_audio(self, audio):
+        try:
+            text = self.r.recognize_google(audio, language=self.language)
+            return text
+        except sr.UnknownValueError:
+            val_err = "Sorry, I could not understand what you said."
+            print(val_err)
+            return val_err
+
+    def recognize_alias(self):
+        audio = self.record_audio()
+        text = self.transcribe_audio(audio)
+        text1 = text.split()
+        for word in text1:
+            if word in self.keyword_hera:
+                print("Sim!")
+                return True
+
+    def config_spotify(self):
+        self.oauth_object = spotipy.SpotifyOAuth(self.clientID,self.clientSecret,self.redirectURI)
+        self.token_dict = self.oauth_object.get_access_token()
+        self.token = self.token_dict['access_token']
+        self.spotifyObject = spotipy.Spotify(auth=self.token)
+        self.user = self.spotifyObject.current_user()
+        
+    def play_music(self):
+        config = self.config_spotify()
+        #if text in self.keyword_music:
+        print("Qual música você deseja tocar?")
+        audio = self.record_audio()
+        text = self.transcribe_audio(audio)
+        # Get the Song Name.
+        searchQuery = text
+        # Search for the Song.
+        searchResults = self.spotifyObject.search(text,1,0,"track")
+        # Get required data from JSON response.
+        tracks_dict = searchResults['tracks']
+        tracks_items = tracks_dict['items']
+        song = tracks_items[0]['external_urls']['spotify']
+        # Open the Song in Web Browser
+        webbrowser.open(song)
+        print('Tocando ', text)
+        time.sleep(20)
+#         xey = pa.position()
+#         pa.
+#         pa.doubleClick()
+            
+#     def sal_frut(self):
+#         audio = self.record_audio()
+#         text = self.transcribe_audio(audio)
+#         playsoud...
+            
+    def run(self):
+        while True:
+            alias = self.recognize_alias()
+            if alias:
+                audio = self.record_audio()
+                text = self.transcribe_audio(audio)
+                if text in self.keyword_music:
+                    self.play_music()
+                elif text in self.keyword_fruta:
+                    self.sal_frut()
+
+if __name__ == '__main__':
+    while True:
+        voice_assistant = VoiceAssistant()
+        voice_assistant.run()
+    if text == "obrigado":
+        print("Por nada, qualquer coisa é só chamar :)")
+        #break
