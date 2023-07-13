@@ -12,13 +12,14 @@ import pyttsx3 #pip install pyttsx3
 from googlesearch import search #pip install google
 from bs4 import BeautifulSoup #pip install BeautifulSoup
 import requests
+from bardapi import Bard
 
 class VoiceAssistant:
     
     def __init__(self):
         self.keyword_hera = ["Alexa", "alexa", "Alex", "alex", "Alexia", "alexia", "game", "Game"]
         self.keyword_music = ["toque", "tocar", "música"]
-        self.keyword_question = ["qual", "o que", "quando", "como", "quem", "Qual"]
+        self.keyword_question = ["qual", "o que", "quando", "como", "quem", "Qual", "Quem"]
         self.keyword_pass = ["próxima música"]
         self.keyword_pause = ["pausar música", "pause"]
         self.keyword_play = ["tocar", "continue"]
@@ -99,26 +100,10 @@ class VoiceAssistant:
             self.speak("Nenhuma música encontrada.")
     
     def answer(self, text):
-        query = text + " site:wikipedia.org"
-        print(query)
-        for j in search(query, tld="co.in", num=10, stop=10, pause=2):
-            print(f"Processing link: {j}")
-            if "wikipedia.org" not in j:
-                print("Not a Wikipedia link. Skipping...")
-                continue
-            link = j
-            response = requests.get(link)
-            soup = BeautifulSoup(response.text, "html.parser")
-            paragraphs = soup.find_all('p')
-            non_empty_paragraphs = [p for p in paragraphs if p.text.strip()]
-            if len(non_empty_paragraphs) > 0:
-                result = non_empty_paragraphs[0].text
-                print(result)
-                self.speak(result)
-                break
-            else:
-                print("No non-empty paragraphs found.")
-
+        os.environ['_BARD_API_KEY']="YwjBBmxNaqrq36aoaqjrxv0seqrtPDM4ak7WurNXueSbfMnigb8pFu3OlLjQ96jduxTm7w."
+        input_text = text
+        bard_output = Bard().get_answer(input_text)['content']
+        print(bard_output)
             
     def run(self):
         while True:
